@@ -1,0 +1,13 @@
+{
+  "name": "Split It",
+  "short_name": "Split It",
+  "description": "Split shared expenses and settle up in the fewest payments.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f7f9",
+  "theme_color": "#0f9d74",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
