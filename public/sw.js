@@ -1,5 +1,5 @@
 // Network-first service worker: always try fresh files, fall back to cache offline.
-const CACHE = 'split-it-v1';
+const CACHE = 'rehearse-v1';
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));

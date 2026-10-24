@@ -1,58 +1,64 @@
 import { useEffect, useState } from 'react';
-import type { Group } from './types';
+import type { Turn } from './feedback';
+import type { Difficulty } from './scenarios';
 
-const KEY = 'split-it:groups:v1';
+export interface Session {
+  id: string;
+  scenarioId: string;
+  title: string;
+  emoji: string;
+  difficulty: Difficulty;
+  date: number;
+  turns: Turn[];
+  score: number;
+  /** Set for custom scenarios so they can be rebuilt when reviewing. */
+  custom?: { who: string; goal: string };
+}
+
+export interface Settings {
+  voiceReplies: boolean;
+}
+
+const KEY = 'rehearse:v1';
+
+interface Saved {
+  sessions: Session[];
+  settings: Settings;
+}
+
+const empty: Saved = { sessions: [], settings: { voiceReplies: true } };
 
 export const uid = () =>
   typeof crypto !== 'undefined' && 'randomUUID' in crypto
     ? crypto.randomUUID()
     : Math.random().toString(36).slice(2) + Date.now().toString(36);
 
-export const today = () => {
-  const d = new Date();
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-};
-
-/** Saved groups, or `firstRun()` when nothing has ever been saved on this device. */
-function load(firstRun: () => Group[]): Group[] {
+function load(): Saved {
   try {
     const raw = localStorage.getItem(KEY);
-    return raw === null ? firstRun() : (JSON.parse(raw) as Group[]);
+    return raw ? { ...empty, ...(JSON.parse(raw) as Saved) } : empty;
   } catch {
-    return firstRun();
+    return empty;
   }
 }
 
-/** Groups persisted to localStorage on every change. */
-export function useGroups(firstRun: () => Group[] = () => []) {
-  const [groups, setGroups] = useState<Group[]>(() => load(firstRun));
+/** Practice history and settings, persisted on this device. */
+export function useSaved() {
+  const [saved, setSaved] = useState<Saved>(load);
 
   useEffect(() => {
     try {
-      localStorage.setItem(KEY, JSON.stringify(groups));
+      localStorage.setItem(KEY, JSON.stringify(saved));
     } catch {
-      // Storage full or blocked; the app keeps working in memory.
+      // Storage full or blocked; keep working in memory.
     }
-  }, [groups]);
+  }, [saved]);
 
-  const updateGroup = (id: string, fn: (g: Group) => Group) =>
-    setGroups((gs) => gs.map((g) => (g.id === id ? fn(g) : g)));
-
-  return { groups, setGroups, updateGroup };
-}
-
-export function isGroupArray(data: unknown): data is Group[] {
-  return (
-    Array.isArray(data) &&
-    data.every(
-      (g) =>
-        g &&
-        typeof g.id === 'string' &&
-        typeof g.name === 'string' &&
-        Array.isArray(g.members) &&
-        Array.isArray(g.expenses) &&
-        Array.isArray(g.settlements),
-    )
-  );
+  return {
+    sessions: saved.sessions,
+    settings: saved.settings,
+    addSession: (s: Session) => setSaved((v) => ({ ...v, sessions: [s, ...v.sessions] })),
+    clearSessions: () => setSaved((v) => ({ ...v, sessions: [] })),
+    setSettings: (s: Settings) => setSaved((v) => ({ ...v, settings: s })),
+  };
 }

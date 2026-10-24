@@ -1,12 +1,12 @@
 {
-  "name": "Split It",
-  "short_name": "Split It",
-  "description": "Split shared expenses and settle up in the fewest payments.",
+  "name": "Rehearse",
+  "short_name": "Rehearse",
+  "description": "Practise difficult conversations out loud and get scored feedback.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f6f7f9",
-  "theme_color": "#0f9d74",
+  "background_color": "#f6f6fb",
+  "theme_color": "#5b4bdb",
   "icons": [
     { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ]
